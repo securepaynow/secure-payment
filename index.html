@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Secure Payment</title>
+
+<style>
+
+body{
+    background:#eef2f7;
+    font-family: Arial;
+    padding:15px;
+}
+
+.card{
+    max-width:420px;
+    margin:auto;
+    background:white;
+    border-radius:14px;
+    padding:18px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.06);
+}
+
+.step{
+    background:#2ea3f2;
+    color:white;
+    padding:10px;
+    border-radius:8px;
+    font-weight:bold;
+    margin-top:14px;
+}
+
+.info{
+    background:#f4f7fb;
+    padding:12px;
+    border-radius:8px;
+    margin-top:8px;
+}
+
+.row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:10px 0;
+}
+
+.label{
+    color:gray;
+    font-size:14px;
+}
+
+.value{
+    font-weight:bold;
+    word-break:break-all;
+}
+
+.copy{
+    background:#2ea3f2;
+    border:none;
+    color:white;
+    padding:6px 10px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.qr{
+    display:block;
+    margin:15px auto;
+}
+
+input{
+    width:100%;
+    padding:14px;
+    border-radius:8px;
+    border:1px solid #ddd;
+    margin-top:10px;
+    font-size:16px;
+}
+
+button.submit{
+    width:100%;
+    padding:15px;
+    background:#2ea3f2;
+    border:none;
+    color:white;
+    border-radius:8px;
+    margin-top:12px;
+    font-size:17px;
+}
+
+.success{
+    display:none;
+    text-align:center;
+    padding:20px;
+}
+
+.success h2{
+    color:#16a085;
+}
+
+.error{
+    color:red;
+    display:none;
+    margin-top:6px;
+    font-weight:bold;
+}
+
+.copyMsg{
+    color:green;
+    display:none;
+    font-size:13px;
+    text-align:center;
+}
+
+.warning{
+    color:#d35400;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+.trust{
+    color:#16a085;
+    font-size:13px;
+    margin-top:6px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card" id="paymentCard">
+
+<div class="step">
+Step 1 : Copy Payment Details
+</div>
+
+<div class="info">
+
+<!-- CUSTOMER AUTO HIDE -->
+<div class="row" id="customerRow">
+<div>
+<div class="label">Customer Name</div>
+<div class="value" id="customer"></div>
+</div>
+<button class="copy" onclick="copyText('customer')">Copy</button>
+</div>
+
+<div class="row">
+<div>
+<div class="label">Merchant / App</div>
+<div class="value" id="merchant"></div>
+</div>
+<button class="copy" onclick="copyText('merchant')">Copy</button>
+</div>
+
+<div class="row">
+<div>
+<div class="label">Amount</div>
+<div class="value" id="amount"></div>
+</div>
+<button class="copy" onclick="copyText('amountRaw')">Copy</button>
+</div>
+
+<div class="row">
+<div>
+<div class="label">UPI ID</div>
+<div class="value" id="upi"></div>
+</div>
+<button class="copy" onclick="copyText('upi')">Copy</button>
+</div>
+
+<div class="copyMsg" id="copyMsg">
+Copied ✓
+</div>
+
+<img id="qr" class="qr" width="190"/>
+
+<div class="trust">
+✔ Secure Payment &nbsp;&nbsp; ✔ Verified Merchant
+</div>
+
+</div>
+
+
+<div class="step">
+Step 2 : Complete Payment Using Any UPI App
+</div>
+
+<div class="info">
+
+⚠️ Do not use old payment details.  
+Always complete payment immediately.
+
+</div>
+
+
+<div class="step">
+Step 3 : Enter UTR / Reference Number
+</div>
+
+<div class="info">
+
+<input 
+type="text"
+maxlength="12"
+placeholder="UTR must be exactly 12 digits"
+id="utr"
+/>
+
+<div class="error" id="error">
+Invalid UTR — please check and enter again
+</div>
+
+<button class="submit" onclick="submitUTR()">
+Submit UTR
+</button>
+
+</div>
+
+</div>
+
+
+
+<!-- SUCCESS -->
+
+<div class="card success" id="successCard">
+
+<h2>Payment Successful ✓</h2>
+<p>Your payment is under verification.</p>
+
+</div>
+
+
+
+<script>
+
+/* READ URL */
+
+const params = new URLSearchParams(window.location.search);
+
+const customer = params.get("customer");
+const merchant = params.get("name") || "Business";
+const amount = params.get("amount") || "1";
+const upi = params.get("upi") || "upi@bank";
+
+/* CUSTOMER AUTO HIDE */
+
+if(customer){
+document.getElementById("customer").innerText = customer;
+}else{
+document.getElementById("customerRow").style.display="none";
+}
+
+/* SET VALUES */
+
+document.getElementById("merchant").innerText = merchant;
+document.getElementById("amount").innerText = "₹" + amount;
+document.getElementById("upi").innerText = upi;
+
+/* Hidden raw amount for copy */
+const raw = document.createElement("span");
+raw.id="amountRaw";
+raw.style.display="none";
+raw.innerText=amount;
+document.body.appendChild(raw);
+
+/* QR */
+
+const payString =
+`upi://pay?pa=${upi}&pn=${merchant}&am=${amount}&cu=INR`;
+
+document.getElementById("qr").src =
+`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(payString)}`;
+
+
+/* COPY FUNCTION — WORKS FOR ALL BUTTONS */
+
+function copyText(id){
+
+const text = document.getElementById(id).innerText;
+
+navigator.clipboard.writeText(text);
+
+const msg = document.getElementById("copyMsg");
+
+msg.style.display="block";
+
+setTimeout(()=>{
+msg.style.display="none";
+},1400);
+
+}
+
+
+/* UTR VALIDATION */
+
+function submitUTR(){
+
+const utr = document.getElementById("utr").value;
+
+if(!/^[0-9]{12}$/.test(utr)){
+
+document.getElementById("error").style.display="block";
+return;
+
+}
+
+document.getElementById("paymentCard").style.display="none";
+document.getElementById("successCard").style.display="block";
+
+}
+
+</script>
+
+</body>
+  </html>
