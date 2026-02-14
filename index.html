@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
 
 <title>Secure Payment</title>
 
@@ -121,12 +121,6 @@ input{
     display:none;
 }
 
-.ref{
-    margin-top:10px;
-    color:gray;
-    font-size:14px;
-}
-
 </style>
 </head>
 
@@ -212,18 +206,16 @@ Submit Payment
 
 
 
-<!-- VERIFICATION SCREEN -->
+<!-- SUCCESS -->
 
 <div class="container success" id="successCard">
 
-<h2>Payment Submitted</h2>
+<h2 style="color:#16a34a;">✔ Payment Submitted</h2>
 
 <p>
-Your payment is under verification.<br>
-Please wait while we confirm the transaction.
+Your payment is being verified.<br>
+Please allow a few minutes for confirmation.
 </p>
-
-<div class="ref" id="refId"></div>
 
 </div>
 
@@ -251,7 +243,8 @@ const customer=params.get("customer");
 const amount=params.get("amount")||"1";
 const upi=params.get("upi")||"upi@bank";
 
-/* AUTO HIDE LOGIC */
+
+/* AUTO HIDE */
 
 if(app){
 document.getElementById("app").innerText=app;
@@ -336,11 +329,6 @@ if(time<0)return;
 const utr=document.getElementById("utr").value;
 
 if(!/^[0-9]{12}$/.test(utr))return;
-
-/* Generate reference */
-const ref="TXN"+Math.floor(100000+Math.random()*900000);
-
-document.getElementById("refId").innerText="Reference ID: "+ref;
 
 document.getElementById("paymentCard").style.display="none";
 document.getElementById("successCard").style.display="block";
