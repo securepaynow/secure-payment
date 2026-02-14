@@ -9,121 +9,122 @@
 <style>
 
 body{
-    background:#eef2f7;
-    font-family: Arial;
-    padding:15px;
+    margin:0;
+    background:#edf1f7;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
 }
 
-.card{
-    max-width:420px;
-    margin:auto;
+.container{
+    max-width:430px;
+    margin:25px auto;
     background:white;
-    border-radius:14px;
+    border-radius:16px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.08);
+    overflow:hidden;
+}
+
+.header{
+    background:#1f6feb;
+    color:white;
     padding:18px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.06);
+    font-size:20px;
+    font-weight:600;
+    text-align:center;
+}
+
+.timer{
+    text-align:center;
+    padding:10px;
+    font-weight:600;
+    color:#d35400;
 }
 
 .step{
-    background:#2ea3f2;
-    color:white;
-    padding:10px;
-    border-radius:8px;
-    font-weight:bold;
-    margin-top:14px;
+    background:#e8f1ff;
+    color:#1f6feb;
+    padding:12px;
+    font-weight:600;
 }
 
-.info{
-    background:#f4f7fb;
-    padding:12px;
-    border-radius:8px;
-    margin-top:8px;
+.box{
+    padding:15px;
 }
 
 .row{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin:10px 0;
+    margin:14px 0;
 }
 
 .label{
-    color:gray;
+    color:#6b7280;
     font-size:14px;
 }
 
 .value{
-    font-weight:bold;
-    word-break:break-all;
+    font-size:18px;
+    font-weight:600;
 }
 
 .copy{
-    background:#2ea3f2;
+    background:#1f6feb;
     border:none;
     color:white;
-    padding:6px 10px;
-    border-radius:6px;
+    padding:7px 12px;
+    border-radius:7px;
     cursor:pointer;
 }
 
 .qr{
     display:block;
-    margin:15px auto;
+    margin:18px auto;
+}
+
+.note{
+    background:#fff4e5;
+    padding:12px;
+    border-radius:8px;
+    color:#b45309;
+    font-size:14px;
 }
 
 input{
     width:100%;
     padding:14px;
     border-radius:8px;
-    border:1px solid #ddd;
-    margin-top:10px;
+    border:1px solid #d1d5db;
+    margin-top:12px;
     font-size:16px;
 }
 
-button.submit{
+.submit{
     width:100%;
     padding:15px;
-    background:#2ea3f2;
-    border:none;
+    margin-top:10px;
+    background:#16a34a;
     color:white;
+    border:none;
     border-radius:8px;
-    margin-top:12px;
     font-size:17px;
 }
 
-.success{
+.success,.expired{
     display:none;
     text-align:center;
-    padding:20px;
-}
-
-.success h2{
-    color:#16a085;
-}
-
-.error{
-    color:red;
-    display:none;
-    margin-top:6px;
-    font-weight:bold;
+    padding:40px;
 }
 
 .copyMsg{
+    text-align:center;
     color:green;
     display:none;
-    font-size:13px;
-    text-align:center;
 }
 
-.warning{
-    color:#d35400;
-    font-weight:bold;
+.ref{
     margin-top:10px;
-}
-
-.trust{
-    color:#16a085;
-    font-size:13px;
-    margin-top:6px;
+    color:gray;
+    font-size:14px;
 }
 
 </style>
@@ -131,31 +132,39 @@ button.submit{
 
 <body>
 
-<div class="card" id="paymentCard">
+<div class="container" id="paymentCard">
 
-<div class="step">
-Step 1 : Copy Payment Details
+<div class="header" id="appName">
+Secure Payment
 </div>
 
-<div class="info">
+<div class="timer">
+Link expires in <span id="countdown">05:00</span>
+</div>
 
-<!-- CUSTOMER AUTO HIDE -->
+<div class="step">Step 1 : Copy Payment Details</div>
+
+<div class="box">
+
+<!-- APP -->
+<div class="row" id="appRow">
+<div>
+<div class="label">Merchant / App</div>
+<div class="value" id="app"></div>
+</div>
+<button class="copy" onclick="copyText('app')">Copy</button>
+</div>
+
+<!-- CUSTOMER -->
 <div class="row" id="customerRow">
 <div>
-<div class="label">Customer Name</div>
+<div class="label">Customer</div>
 <div class="value" id="customer"></div>
 </div>
 <button class="copy" onclick="copyText('customer')">Copy</button>
 </div>
 
-<div class="row">
-<div>
-<div class="label">Merchant / App</div>
-<div class="value" id="merchant"></div>
-</div>
-<button class="copy" onclick="copyText('merchant')">Copy</button>
-</div>
-
+<!-- AMOUNT -->
 <div class="row">
 <div>
 <div class="label">Amount</div>
@@ -164,6 +173,7 @@ Step 1 : Copy Payment Details
 <button class="copy" onclick="copyText('amountRaw')">Copy</button>
 </div>
 
+<!-- UPI -->
 <div class="row">
 <div>
 <div class="label">UPI ID</div>
@@ -172,50 +182,28 @@ Step 1 : Copy Payment Details
 <button class="copy" onclick="copyText('upi')">Copy</button>
 </div>
 
-<div class="copyMsg" id="copyMsg">
-Copied ✓
-</div>
+<div class="copyMsg" id="copyMsg">Copied ✓</div>
 
-<img id="qr" class="qr" width="190"/>
-
-<div class="trust">
-✔ Secure Payment &nbsp;&nbsp; ✔ Verified Merchant
-</div>
+<img id="qr" class="qr" width="210"/>
 
 </div>
 
+<div class="step">Step 2 : Complete Payment</div>
 
-<div class="step">
-Step 2 : Complete Payment Using Any UPI App
+<div class="box">
+<div class="note">
+Do not use old payment details. Complete the transfer immediately.
+</div>
 </div>
 
-<div class="info">
+<div class="step">Step 3 : Enter UTR / Reference Number</div>
 
-⚠️ Do not use old payment details.  
-Always complete payment immediately.
+<div class="box">
 
-</div>
-
-
-<div class="step">
-Step 3 : Enter UTR / Reference Number
-</div>
-
-<div class="info">
-
-<input 
-type="text"
-maxlength="12"
-placeholder="UTR must be exactly 12 digits"
-id="utr"
-/>
-
-<div class="error" id="error">
-Invalid UTR — please check and enter again
-</div>
+<input maxlength="12" id="utr" placeholder="Enter 12-digit UTR"/>
 
 <button class="submit" onclick="submitUTR()">
-Submit UTR
+Submit Payment
 </button>
 
 </div>
@@ -224,12 +212,29 @@ Submit UTR
 
 
 
-<!-- SUCCESS -->
+<!-- VERIFICATION SCREEN -->
 
-<div class="card success" id="successCard">
+<div class="container success" id="successCard">
 
-<h2>Payment Successful ✓</h2>
-<p>Your payment is under verification.</p>
+<h2>Payment Submitted</h2>
+
+<p>
+Your payment is under verification.<br>
+Please wait while we confirm the transaction.
+</p>
+
+<div class="ref" id="refId"></div>
+
+</div>
+
+
+
+<!-- EXPIRED -->
+
+<div class="container expired" id="expiredCard">
+
+<h2>Link Expired</h2>
+<p>Please request a new payment link.</p>
 
 </div>
 
@@ -237,76 +242,105 @@ Submit UTR
 
 <script>
 
-/* READ URL */
+/* PARAMETERS */
 
-const params = new URLSearchParams(window.location.search);
+const params=new URLSearchParams(window.location.search);
 
-const customer = params.get("customer");
-const merchant = params.get("name") || "Business";
-const amount = params.get("amount") || "1";
-const upi = params.get("upi") || "upi@bank";
+const app=params.get("app");
+const customer=params.get("customer");
+const amount=params.get("amount")||"1";
+const upi=params.get("upi")||"upi@bank";
 
-/* CUSTOMER AUTO HIDE */
+/* AUTO HIDE LOGIC */
+
+if(app){
+document.getElementById("app").innerText=app;
+document.getElementById("appName").innerText=app;
+}else{
+document.getElementById("appRow").style.display="none";
+}
 
 if(customer){
-document.getElementById("customer").innerText = customer;
+document.getElementById("customer").innerText=customer;
 }else{
 document.getElementById("customerRow").style.display="none";
 }
 
-/* SET VALUES */
+document.getElementById("amount").innerText="₹"+amount;
+document.getElementById("upi").innerText=upi;
 
-document.getElementById("merchant").innerText = merchant;
-document.getElementById("amount").innerText = "₹" + amount;
-document.getElementById("upi").innerText = upi;
 
-/* Hidden raw amount for copy */
-const raw = document.createElement("span");
+/* RAW AMOUNT */
+
+const raw=document.createElement("span");
 raw.id="amountRaw";
 raw.style.display="none";
 raw.innerText=amount;
 document.body.appendChild(raw);
 
+
 /* QR */
 
-const payString =
-`upi://pay?pa=${upi}&pn=${merchant}&am=${amount}&cu=INR`;
+const pay=`upi://pay?pa=${upi}&pn=${app||"Payment"}&am=${amount}&cu=INR`;
 
-document.getElementById("qr").src =
-`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(payString)}`;
+document.getElementById("qr").src=
+`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(pay)}`;
 
 
-/* COPY FUNCTION — WORKS FOR ALL BUTTONS */
+/* COPY */
 
 function copyText(id){
 
-const text = document.getElementById(id).innerText;
+navigator.clipboard.writeText(document.getElementById(id).innerText);
 
-navigator.clipboard.writeText(text);
-
-const msg = document.getElementById("copyMsg");
-
+const msg=document.getElementById("copyMsg");
 msg.style.display="block";
 
-setTimeout(()=>{
-msg.style.display="none";
-},1400);
-
+setTimeout(()=>msg.style.display="none",1000);
 }
 
 
-/* UTR VALIDATION */
+/* TIMER */
+
+let time=300;
+
+const countdown=setInterval(()=>{
+
+let m=Math.floor(time/60);
+let s=time%60;
+
+if(s<10)s="0"+s;
+
+document.getElementById("countdown").innerText=`${m}:${s}`;
+
+time--;
+
+if(time<0){
+
+clearInterval(countdown);
+
+document.getElementById("paymentCard").style.display="none";
+document.getElementById("expiredCard").style.display="block";
+
+}
+
+},1000);
+
+
+/* SUBMIT */
 
 function submitUTR(){
 
-const utr = document.getElementById("utr").value;
+if(time<0)return;
 
-if(!/^[0-9]{12}$/.test(utr)){
+const utr=document.getElementById("utr").value;
 
-document.getElementById("error").style.display="block";
-return;
+if(!/^[0-9]{12}$/.test(utr))return;
 
-}
+/* Generate reference */
+const ref="TXN"+Math.floor(100000+Math.random()*900000);
+
+document.getElementById("refId").innerText="Reference ID: "+ref;
 
 document.getElementById("paymentCard").style.display="none";
 document.getElementById("successCard").style.display="block";
@@ -316,4 +350,4 @@ document.getElementById("successCard").style.display="block";
 </script>
 
 </body>
-  </html>
+</html>
